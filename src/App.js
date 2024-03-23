@@ -2,6 +2,9 @@ import { useEffect } from "react";
 import Header from "./Header";
 import Main from "./Main";
 import { useReducer } from "react";
+import Loader from "./Loader";
+import Error from "./Error";
+import StartScreen from "./StartScreen";
 
 const initialState = {
   questions: [],
@@ -10,6 +13,8 @@ const initialState = {
   status: "loading",
 };
 
+// By using a reducer we can update many states simultaneously
+// with a call to dispatcher only once.
 function reducer(state, action) {
   switch (action.type) {
     case "dataReceived":
@@ -29,7 +34,9 @@ function reducer(state, action) {
 }
 
 export default function App() {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [{ questions, status }, dispatch] = useReducer(reducer, initialState);
+
+  const numQuestions = questions.length;
 
   // We run this effect only on mount
   useEffect(function () {
@@ -44,8 +51,9 @@ export default function App() {
       <Header />
 
       <Main>
-        <p>1/15</p>
-        <p>Question?</p>
+        {status === "loading" && <Loader />}
+        {status === "error" && <Error />}
+        {status === "ready" && <StartScreen numQuestions={numQuestions} />}
       </Main>
     </div>
   );
